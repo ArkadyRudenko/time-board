@@ -14,7 +14,8 @@ impl TimesheetsRoutesInitialized for Rocket {
             "/api-v1",
             routes![
                 index::test,
-                crate::routes::authentication::registration
+                crate::routes::authentication::registration,
+                crate::routes::authentication::login
             ],
         )
             .register(catchers![unauthorized, unknown])

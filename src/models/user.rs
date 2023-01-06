@@ -7,7 +7,7 @@ pub struct User {
     id: Uuid,
     username: String,
     login: String,
-    password: String,
+    secret: String,
 }
 
 #[derive(Insertable)]
@@ -25,5 +25,13 @@ impl User {
 
     pub fn get_id(&self) -> Uuid {
         self.id
+    }
+
+    pub fn id_as_ref(&self) -> &Uuid {
+        &self.id
+    }
+
+    pub fn secret_as_ref(&self) -> &str {
+        &self.secret
     }
 }

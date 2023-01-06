@@ -4,7 +4,8 @@ use dotenvy::dotenv;
 use std::env;
 
 pub mod registration_user;
-pub mod select_user;
+pub mod get_user;
+pub mod token;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();

@@ -1,10 +1,31 @@
 use rocket_contrib::json::Json;
+use crate::handlers::authentication::login::{create_token, LoginError};
 use crate::handlers::authentication::registration::{create_new_user, RegistrationError};
 use crate::models::user::NewUser;
-use crate::routes::route_objects::error_response::{ERROR_ALREADY_REGISTERED, ERROR_UNKNOWN, ERROR_WEAK_PASSWORD, ERROR_WRONG_REQUEST, ErrorResponse};
+use crate::routes::route_objects::error_response::{ERROR_ALREADY_REGISTERED, ERROR_UNKNOWN,
+                                                   ERROR_USER_NOT_FOUND, ERROR_WEAK_PASSWORD,
+                                                   ERROR_WRONG_REQUEST, ErrorResponse};
+use crate::routes::route_objects::login_request::LoginRequest;
+use crate::routes::route_objects::login_response::LoginResponse;
 use crate::routes::route_objects::registration_request::RegistrationRequest;
 
-// TODO login request
+#[post("/login", format = "json", data = "<maybe_login_request>")]
+pub fn login<'r>(
+    maybe_login_request: Option<Json<LoginRequest>>
+) -> Result<Json<LoginResponse>, ErrorResponse<'r>> {
+    let call_chain =
+        maybe_login_request.map(|r| create_token(r.login, r.password));
+    return match call_chain {
+        Some(Ok(token)) => {
+            let login_response = LoginResponse::from(token);
+            let json_response = Json(login_response);
+            Ok(json_response)
+        }
+        Some(Err(LoginError::NotFound)) => Err(ERROR_USER_NOT_FOUND),
+        None => Err(ERROR_WRONG_REQUEST),
+        _ => Err(ERROR_UNKNOWN),
+    };
+}
 
 #[post(
 "/registration",
