@@ -8,11 +8,29 @@ use crate::routes::route_objects::registration_request::RegistrationRequest;
 
 pub enum RegistrationError {
     LoginInUse,
+    IncorrectLogin,
     WeakPassword,
     Other,
 }
 
+fn is_correct_login(login: &str) -> bool {
+    for x in login.chars() {
+        if x.is_uppercase() {
+            return false;
+        }
+    }
+    true
+}
+
 pub fn create_new_user(user: RegistrationRequest) -> Result<(), RegistrationError> {
+
+    if user.password.chars().count() < 8 {
+        return Err(RegistrationError::WeakPassword);
+    }
+    if !is_correct_login(user.login) {
+        return Err(RegistrationError::IncorrectLogin);
+    }
+
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
 

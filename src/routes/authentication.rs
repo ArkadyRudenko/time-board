@@ -2,9 +2,7 @@ use rocket_contrib::json::Json;
 use crate::handlers::authentication::login::{create_token, LoginError};
 use crate::handlers::authentication::registration::{create_new_user, RegistrationError};
 use crate::models::user::NewUser;
-use crate::routes::route_objects::error_response::{ERROR_ALREADY_REGISTERED, ERROR_UNKNOWN,
-                                                   ERROR_USER_NOT_FOUND, ERROR_WEAK_PASSWORD,
-                                                   ERROR_WRONG_REQUEST, ErrorResponse};
+use crate::routes::route_objects::error_response::{ERROR_ALREADY_REGISTERED, ERROR_INCORRECT_LOGIN, ERROR_UNKNOWN, ERROR_USER_NOT_FOUND, ERROR_WEAK_PASSWORD, ERROR_WRONG_REQUEST, ErrorResponse};
 use crate::routes::route_objects::login_request::LoginRequest;
 use crate::routes::route_objects::login_response::LoginResponse;
 use crate::routes::route_objects::registration_request::RegistrationRequest;
@@ -44,6 +42,7 @@ pub fn registration<'r>(
         Some(Ok(_)) => Ok(()),
         Some(Err(RegistrationError::LoginInUse)) => Err(ERROR_ALREADY_REGISTERED),
         Some(Err(RegistrationError::WeakPassword)) => Err(ERROR_WEAK_PASSWORD),
+        Some(Err(RegistrationError::IncorrectLogin)) => Err(ERROR_INCORRECT_LOGIN),
         None => Err(ERROR_WRONG_REQUEST),
         _ => Err(ERROR_UNKNOWN),
     };

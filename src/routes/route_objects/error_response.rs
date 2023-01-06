@@ -54,3 +54,7 @@ pub const ERROR_ALREADY_REGISTERED: ErrorResponse = ErrorResponse {
     cause: "already_registered",
     status: Status::BadRequest,
 };
+pub const ERROR_INCORRECT_LOGIN: ErrorResponse = ErrorResponse {
+    cause: "login has uppercase characters",
+    status: Status::BadRequest,
+};
