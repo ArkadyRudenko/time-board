@@ -4,9 +4,9 @@ use crate::models::task::Task;
 
 pub struct Project {
     id: Uuid,
+    user_id: Uuid,
     title: String,
     description: String,
-    tasks: Vec<Task>,
 }
 
 impl Project {

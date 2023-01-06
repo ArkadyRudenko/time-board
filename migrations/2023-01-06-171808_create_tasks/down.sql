@@ -1,4 +1,4 @@
 -- This file should undo anything in `up.sql`
 drop
-index projects_id_uindex;
-drop table projects;
+index tasks_id_uindex;
+drop table tasks;
