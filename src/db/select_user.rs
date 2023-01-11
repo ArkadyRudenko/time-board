@@ -1,7 +1,8 @@
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use crate::models::user::{NewUser, User};
+use crate::models::user::{User};
 use diesel::prelude::*;
 use uuid::Uuid;
+use crate::db::establish_connection;
 use crate::schema::users;
 
 pub enum GetUserOutcome {
@@ -10,28 +11,30 @@ pub enum GetUserOutcome {
     Error,
 }
 
-pub fn select_user_by_id(conn: &mut PgConnection, id: Uuid) -> Option<User> {
+pub fn select_user_by_id(id: Uuid) -> GetUserOutcome {
     return match users::table
         .filter(users::id.eq(id))
-        .first(conn) {
-        Ok(user) => Some(user),
-        Err(_) => None,
+        .first(&mut establish_connection()) {
+        Ok(user) => GetUserOutcome::Some(user),
+        Err(_) => GetUserOutcome::None,
+        _ => GetUserOutcome::Error,
     };
 }
 
-pub fn select_user_by_username(conn: &mut PgConnection, username: &str) -> Option<User> {
+pub fn select_user_by_username(username: &str) -> GetUserOutcome {
     return match users::table
         .filter(users::username.eq(username))
-        .first(conn) {
-        Ok(user) => Some(user),
-        Err(_) => None,
+        .first(&mut establish_connection()) {
+        Ok(user) => GetUserOutcome::Some(user),
+        Err(_) => GetUserOutcome::None,
+        _ => GetUserOutcome::Error,
     };
 }
 
-pub fn with_credentials(conn: &mut PgConnection, login: &str, password: &str) -> GetUserOutcome {
+pub fn select_user_with_credentials(login: &str, password: &str) -> GetUserOutcome {
     match users::table
         .filter(users::login.eq(login.to_lowercase()))
-        .get_result::<User>(conn)
+        .get_result::<User>(&mut establish_connection())
     {
         Ok(user) => {
             let argon2 = Argon2::default();

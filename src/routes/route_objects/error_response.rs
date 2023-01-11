@@ -1,7 +1,7 @@
 use rocket::http::{ContentType, Status};
 use rocket::response::{Responder, Result};
 use rocket::{Request, Response};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 #[derive(Copy, Clone, Debug)]
 pub struct ErrorResponse<'a> {
@@ -9,7 +9,7 @@ pub struct ErrorResponse<'a> {
     pub status: Status,
 }
 
-impl<'r> Responder<'r> for ErrorResponse<'r> {
+impl<'r> Responder<'r, 'r> for ErrorResponse<'r> {
     fn respond_to(self, request: &Request) -> Result<'r> {
         if let Ok(response) = Json(json!({"error": self.cause})).respond_to(request) {
             Response::build_from(response)

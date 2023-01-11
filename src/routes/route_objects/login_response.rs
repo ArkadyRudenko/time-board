@@ -1,4 +1,4 @@
-use serde::Serialize;
+use rocket::serde::{Serialize};
 
 #[derive(Serialize, Debug)]
 pub struct LoginResponse {

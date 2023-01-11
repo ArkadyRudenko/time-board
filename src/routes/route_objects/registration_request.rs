@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use rocket::serde::{Deserialize};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct RegistrationRequest<'a> {
