@@ -6,6 +6,8 @@ use uuid::Uuid;
 use crate::models::user::User;
 use crate::schema::tokens;
 use diesel::prelude::*;
+use diesel::serialize::IsNull::No;
+use rocket::http::ext::IntoCollection;
 use crate::db::{establish_connection};
 
 pub enum CreateTokenOutcome {
@@ -17,8 +19,8 @@ pub enum CreateTokenOutcome {
 pub struct Token {
     token: String,
     user_id: Uuid,
-    created_at: Duration,
-    last_used_at: Duration,
+    created_at: std::time::SystemTime,
+    last_used_at: std::time::SystemTime,
 }
 
 #[derive(Insertable, PartialEq, Debug)]
@@ -29,6 +31,10 @@ pub struct NewToken<'a> {
 }
 
 impl Token {
+    pub fn get_user_id(&self) -> Uuid {
+        self.user_id.clone()
+    }
+
     pub fn create_for_user(user: &User) -> CreateTokenOutcome {
         let mut token_bytes = [0u8; 32];
         rand_core::OsRng.fill_bytes(&mut token_bytes);
@@ -51,5 +57,25 @@ impl Token {
                 CreateTokenOutcome::Err
             }
         }
+    }
+
+    pub fn select(token: &str) -> Option<Token> {
+        // TODO Why it replaces '+' to' '?
+        let mut new_token = String::new();
+
+        for ch in token.chars() {
+            if ch == ' ' {
+                new_token.push('+');
+            } else {
+                new_token.push(ch);
+            }
+        }
+
+        return match tokens::table
+            .filter(tokens::token.eq(new_token.as_str()))
+            .first(&mut establish_connection()) {
+            Ok(token) => Some(token),
+            _ => None,
+        };
     }
 }

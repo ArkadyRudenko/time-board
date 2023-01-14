@@ -58,3 +58,9 @@ pub const ERROR_INCORRECT_LOGIN: ErrorResponse = ErrorResponse {
     cause: "login has uppercase characters",
     status: Status::BadRequest,
 };
+
+// projects error
+pub const ERROR_PROJECTS_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "there aren`t projects",
+    status: Status::BadRequest,
+};

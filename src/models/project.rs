@@ -1,6 +1,7 @@
 use std::time::Duration;
 use uuid::Uuid;
 use diesel::prelude::*;
+use crate::db::establish_connection;
 use crate::schema::projects;
 
 pub enum GetProjectOutcome {
@@ -9,11 +10,15 @@ pub enum GetProjectOutcome {
     Error,
 }
 
+pub enum InsertError {
+    SomeError,
+}
+
 #[derive(Queryable)]
 pub struct Project {
     id: Uuid,
     title: String,
-    pub description: String,
+    description: String,
     user_id: Uuid,
 }
 
@@ -21,17 +26,48 @@ impl Project {
     pub fn get_global_time(&self) -> Duration {
         todo!()
     }
-}
 
-impl Project {
-    pub fn select_project_by_user_id(conn: &mut PgConnection, user_id: Uuid) -> Option<Project> {
+    pub fn title(&self) -> &str {
+        self.title.as_str()
+    }
+
+    pub fn description(&self) -> &str {
+        self.description.as_str()
+    }
+
+    pub fn uuid(&self) -> &Uuid {
+        &self.id
+    }
+
+    pub fn select_projects_by_user_id(user_id: Uuid) -> Option<Vec<Project>> {
         return match projects::table
             .filter(projects::user_id.eq(user_id))
-            .first(conn) {
-            Ok(project) => Some(project),
+            .load::<Project>(&mut establish_connection()) {
+            Ok(projects) => Some(projects),
             Err(_) => None,
         };
     }
+
+    pub fn insert(new_project: NewProject) -> Result<(), InsertError> {
+        match diesel::insert_into(crate::schema::projects::table)
+            .values(&new_project)
+            .get_result::<Project>(&mut establish_connection()) {
+            Ok(_) => Ok(()),
+            Err(diesel::result::Error::DatabaseError(
+                    diesel::result::DatabaseErrorKind::UniqueViolation,
+                    _,
+                )) => Err(InsertError::SomeError),
+            _ => Err(InsertError::SomeError),
+        }
+    }
+}
+
+#[derive(Insertable, Default)]
+#[diesel(table_name = projects)]
+pub struct NewProject<'a> {
+    pub title: &'a str,
+    pub description: &'a str,
+    pub user_id: Uuid,
 }
 
 pub struct ProjectResponse {

@@ -2,6 +2,7 @@
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate core;
 
 pub mod db;
 pub mod models;
@@ -21,7 +22,8 @@ fn rocket() -> _ {
         routes![
                 crate::routes::authentication::registration,
                 crate::routes::authentication::login,
-                crate::routes::projects::get_project
+                crate::routes::projects::create_project,
+                crate::routes::projects::get_all_projects,
             ],
     )
 }
