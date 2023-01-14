@@ -9,7 +9,7 @@ pub struct ProjectResponse {
 }
 
 impl<'a> ProjectResponse {
-    pub fn fromProject(project: &'a Project) -> Self {
+    pub fn from_project(project: &'a Project) -> Self {
         Self {
             title: project.title().to_string(),
             description: project.description().to_string(),

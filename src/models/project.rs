@@ -1,5 +1,6 @@
+use std::str::FromStr;
 use std::time::Duration;
-use uuid::Uuid;
+use uuid::{Error, Uuid};
 use diesel::prelude::*;
 use crate::db::establish_connection;
 use crate::schema::projects;
@@ -46,6 +47,22 @@ impl Project {
             Ok(projects) => Some(projects),
             Err(_) => None,
         };
+    }
+
+    pub fn select_project(project_id: &str) -> Option<Project> {
+        let project_id = Uuid::from_str(project_id);
+        match project_id {
+            Ok(project_uuid) => {
+                return match projects::table
+                    .filter(projects::id.eq(project_uuid))
+                    .first(&mut establish_connection()) {
+                    Ok(project) => Some(project),
+                    Err(_) => None,
+                };
+            }
+            Err(_) => None
+        }
+
     }
 
     pub fn insert(new_project: NewProject) -> Result<(), InsertError> {

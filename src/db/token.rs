@@ -15,7 +15,7 @@ pub enum CreateTokenOutcome {
     Err,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Clone)]
 pub struct Token {
     token: String,
     user_id: Uuid,
@@ -59,8 +59,10 @@ impl Token {
         }
     }
 
+    // CDbsKFaGoN7CpKbafOWw0OCo I979NYkBl/9jaHuVGY=
+    // CDbsKFaGoN7CpKbafOWw0OCo+I979NYkBl/9jaHuVGY=
     pub fn select(token: &str) -> Option<Token> {
-        // TODO Why it replaces '+' to' '?
+        // TODO Why it replaces '+' to ' '?
         let new_token: String = token.chars().map(|ch| {
             if ch == ' ' { '+' } else { ch } }
         ).collect();
