@@ -50,10 +50,10 @@ pub async fn get_all_projects<'a>(
             let projects = Project::select_projects_by_user_id(token.get_user_id());
             match projects {
                 Some(projects) => {
-                    let mut  projects_responses = Vec::with_capacity(projects.len());
-                    for project in &projects {
-                        projects_responses.push(ProjectResponse::fromProject(project));
-                    }
+                    let projects_responses = projects
+                        .iter()
+                        .map(|p| ProjectResponse::fromProject(p)).collect();
+
                     return Ok(Json(projects_responses));
                 }
                 None => Err(ERROR_PROJECTS_NOT_FOUND)

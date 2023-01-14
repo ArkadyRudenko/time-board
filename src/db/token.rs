@@ -61,15 +61,9 @@ impl Token {
 
     pub fn select(token: &str) -> Option<Token> {
         // TODO Why it replaces '+' to' '?
-        let mut new_token = String::new();
-
-        for ch in token.chars() {
-            if ch == ' ' {
-                new_token.push('+');
-            } else {
-                new_token.push(ch);
-            }
-        }
+        let new_token: String = token.chars().map(|ch| {
+            if ch == ' ' { '+' } else { ch } }
+        ).collect();
 
         return match tokens::table
             .filter(tokens::token.eq(new_token.as_str()))
