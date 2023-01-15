@@ -1,9 +1,6 @@
 use std::str::FromStr;
-use rocket::futures::StreamExt;
 use rocket::serde::json::Json;
-use serde::de::Unexpected::Str;
 use uuid::{Error, Uuid};
-use crate::db::establish_connection;
 use crate::db::token::Token;
 use crate::models::project::{InsertError, NewProject, Project};
 use crate::models::user::LoginError;
@@ -20,7 +17,7 @@ pub async fn create_project(
     let call_chain = maybe_project_request.map(|p| {
         new_project.title = p.title;
         new_project.description = p.description;
-        Token::select(p.user_token)
+        Token::select(p.access_token)
     });
 
     match call_chain {

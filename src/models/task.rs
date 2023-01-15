@@ -1,70 +1,35 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 use diesel::prelude::*;
+use crate::db::establish_connection;
+use crate::models::project::InsertError;
 
-pub struct Session(Duration, Duration);
-
-impl Session {
-    pub fn new() -> Self {
-        let cur_time = SystemTime::now().get_current_time();
-        Self {
-            0: cur_time,
-            1: cur_time,
-        }
-    }
-
-    pub fn get_time(&self) -> Duration {
-        self.1 - self.0
-    }
-}
-
-pub struct Sessions(Vec<Session>);
+use crate::schema::tasks;
 
 #[derive(Queryable)]
 pub struct Task {
     id: Uuid,
     description: String,
-    sessions: Sessions,
+    project_id: Uuid,
 }
 
-// #[derive(Insertable)]
-// #[diesel(table_name = tasks)]
-// pub struct NewTask<'a> {
-//     pub description: &'a str,
-// }
-
-trait CurrentTime {
-    fn get_current_time(&self) -> Duration;
-}
-
-impl CurrentTime for SystemTime {
-    fn get_current_time(&self) -> Duration {
-        self.duration_since(UNIX_EPOCH).unwrap()
-    }
+#[derive(Insertable, Default)]
+#[diesel(table_name = tasks)]
+pub struct NewTask<'a> {
+    pub project_id: Uuid,
+    pub description: &'a str,
 }
 
 impl Task {
-    pub fn start_session(&mut self) {
-        self.sessions.0.push(Session::new());
-    }
-
-    pub fn end_session(&mut self) {
-        match self.sessions.0.last_mut() {
-            Some(last) => {
-                last.1 = SystemTime::now().get_current_time();
-            }
-            None => {}
+    pub fn insert(new_task: NewTask) -> Result<(), InsertError>  {
+        match diesel::insert_into(crate::schema::tasks::table)
+            .values(&new_task)
+            .get_result::<Task>(&mut establish_connection()) {
+            Ok(_) => Ok(()),
+            Err(diesel::result::Error::DatabaseError(
+                    diesel::result::DatabaseErrorKind::UniqueViolation,
+                    _,
+                )) => Err(InsertError::SomeError),
+            _ => Err(InsertError::SomeError),
         }
-    }
-
-    pub fn get_global_time(&self) -> Duration {
-        let mut global_time = Duration::default();
-
-        for session in &self.sessions.0 {
-            global_time += session.get_time();
-        }
-
-        global_time
     }
 }
-

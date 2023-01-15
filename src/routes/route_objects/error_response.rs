@@ -64,3 +64,14 @@ pub const ERROR_PROJECTS_NOT_FOUND: ErrorResponse = ErrorResponse {
     cause: "there aren`t projects",
     status: Status::BadRequest,
 };
+
+pub const ERROR_PROJECT_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "there asn`t project",
+    status: Status::BadRequest,
+};
+
+// tasks error
+pub const ERROR_TASK_NOT_ADDED: ErrorResponse = ErrorResponse {
+    cause: "task won`t added",
+    status: Status::BadRequest,
+};
