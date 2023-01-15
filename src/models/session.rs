@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::result::Error;
@@ -11,8 +12,8 @@ use crate::schema::sessions;
 pub struct Session {
     id: Uuid,
     task_id: Uuid,
-    start_task: std::time::SystemTime,
-    end_task: std::time::SystemTime,
+    pub start_task: std::time::SystemTime,
+    pub end_task: std::time::SystemTime,
 }
 
 #[derive(Insertable, Default)]
@@ -23,8 +24,8 @@ pub struct NewSession {
 
 impl Session {
     pub fn start(task_id: &Uuid) -> QueryResult<Session> {
-        let new_session = NewSession{task_id: task_id.clone()};
-        
+        let new_session = NewSession { task_id: task_id.clone() };
+
         match diesel::insert_into(crate::schema::sessions::table)
             .values(&new_session)
             .get_result::<Session>(&mut establish_connection()) {
@@ -49,5 +50,14 @@ impl Session {
                 )) => Err(Error::NotFound),
             _ => Err(Error::NotFound),
         }
+    }
+
+    pub fn all(task_id: &Uuid) -> QueryResult<Vec<Session>> {
+        return match sessions::table
+            .filter(sessions::task_id.eq(task_id))
+            .load::<Session>(&mut establish_connection()) {
+            Ok(sessions) => Ok(sessions),
+            Err(_) => Err(Error::NotFound),
+        };
     }
 }

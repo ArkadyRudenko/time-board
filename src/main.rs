@@ -23,6 +23,8 @@ fn rocket() -> _ {
                 crate::routes::tasks::create_task,
                 crate::routes::sessions::start_session,
                 crate::routes::sessions::end_session,
+                crate::routes::projects::get_project_time,
+                crate::routes::tasks::get_all_task,
             ],
     )
 }

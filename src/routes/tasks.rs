@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::db::token::Token;
 use crate::models::project::Project;
 use crate::models::task::{NewTask, Task};
+use crate::routes::route_objects::access_token::AccessToken;
 use crate::routes::route_objects::error_response::{ERROR_PROJECT_NOT_FOUND, ERROR_TASK_NOT_ADDED, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
 
 #[post("/project/<project_id>/task", format = "json", data = "<maybe_task_request>")]
@@ -34,5 +35,17 @@ pub async fn create_task<'r>(
             }
         }
         None => Err(ERROR_WRONG_REQUEST),
+    }
+}
+
+#[get("/project/<project_id>/tasks", format = "json", data = "<maybe_task_request>")]
+pub async fn get_all_task<'r>(
+    project_id: &str,
+    maybe_task_request: Option<Json<AccessToken<'r>>>,
+) -> Result<Json<Vec<Task>>, ErrorResponse<'r>> {
+    // TODO access_token
+    match Task::all(project_id) {
+        Ok(tasks) => Ok(Json(tasks)),
+        _ => Err(ERROR_PROJECT_NOT_FOUND),
     }
 }

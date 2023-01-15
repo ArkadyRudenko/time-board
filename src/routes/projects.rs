@@ -1,9 +1,11 @@
 use std::str::FromStr;
+use std::time::Duration;
 use rocket::serde::json::Json;
 use uuid::{Error, Uuid};
 use crate::db::token::Token;
 use crate::models::project::{InsertError, NewProject, Project};
 use crate::models::user::LoginError;
+use crate::routes::route_objects::access_token::AccessToken;
 use crate::routes::route_objects::error_response::{ERROR_INCORRECT_LOGIN, ERROR_PROJECTS_NOT_FOUND, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
 use crate::routes::route_objects::project_request::ProjectRequest;
 use crate::routes::route_objects::project_response::ProjectResponse;
@@ -80,6 +82,25 @@ pub async fn get_project(
         }
         None => Err(ERROR_WRONG_REQUEST)
     }
+}
+
+#[get("/project/<project_id>/time", format = "json", data = "<access_token>")]
+pub async fn get_project_time<'r>(
+    project_id: &str,
+    access_token: Option<Json<AccessToken<'r>>>,
+) -> Result<Json<Duration>, ErrorResponse<'r>> {
+    let call_chain = access_token.map(|token| {
+        Token::select(token.access_token)
+    });
+    return match call_chain {
+        Some(Some(_)) => {
+            match Project::get_all_time(project_id) {
+                Ok(time) => Ok(Json(time)),
+                _ => Err(ERROR_PROJECTS_NOT_FOUND),
+            }
+        },
+        _ => Err(ERROR_USER_NOT_FOUND),
+    };
 }
 
 

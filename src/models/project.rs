@@ -1,8 +1,11 @@
 use std::str::FromStr;
 use std::time::Duration;
-use uuid::{Error, Uuid};
+use uuid::{Uuid};
 use diesel::prelude::*;
 use crate::db::establish_connection;
+use crate::models::task::Task;
+use diesel::result::Error;
+
 use crate::schema::projects;
 
 pub enum GetProjectOutcome {
@@ -76,6 +79,26 @@ impl Project {
             _ => Err(InsertError::SomeError),
         }
     }
+
+    pub fn get_all_time(project_id: &str) -> Result<Duration, Error> {
+        let tasks = Task::all(project_id);
+        return match tasks {
+            Ok(tasks) => {
+                let times: Vec<Option<Duration>> = tasks.iter().map(|t| t.get_time()).collect();
+
+                let mut res = Duration::default();
+                for t in times.into_iter() {
+                    match t {
+                        Some(t) => res += t,
+                        None => {}
+                    }
+                }
+                Ok(res)
+            }
+            _ => Err(Error::NotFound),
+        }
+    }
+
 }
 
 #[derive(Insertable, Default)]
