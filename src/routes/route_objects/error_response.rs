@@ -72,6 +72,17 @@ pub const ERROR_PROJECT_NOT_FOUND: ErrorResponse = ErrorResponse {
 
 // tasks error
 pub const ERROR_TASK_NOT_ADDED: ErrorResponse = ErrorResponse {
-    cause: "task won`t added",
+    cause: "task wasn`t added",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_TASK_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "task was not found",
+    status: Status::BadRequest,
+};
+
+// session error
+pub const ERROR_SESSION_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "session was not found",
     status: Status::BadRequest,
 };

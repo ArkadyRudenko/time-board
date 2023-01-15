@@ -1,9 +1,15 @@
+use std::str::FromStr;
 use uuid::Uuid;
 use diesel::prelude::*;
+use diesel::result::Error;
 use crate::db::establish_connection;
 use crate::models::project::InsertError;
 
 use crate::schema::tasks;
+
+pub enum StartError {
+    SomeError
+}
 
 #[derive(Queryable)]
 pub struct Task {
@@ -20,6 +26,11 @@ pub struct NewTask<'a> {
 }
 
 impl Task {
+
+    pub fn get_id(&self) -> &Uuid {
+        &self.id
+    }
+
     pub fn insert(new_task: NewTask) -> Result<(), InsertError>  {
         match diesel::insert_into(crate::schema::tasks::table)
             .values(&new_task)
@@ -30,6 +41,21 @@ impl Task {
                     _,
                 )) => Err(InsertError::SomeError),
             _ => Err(InsertError::SomeError),
+        }
+    }
+
+    pub fn select(task_id: &str) ->QueryResult<Task>  {
+        let task_id = Uuid::from_str(task_id);
+        match task_id {
+            Ok(task_uuid) => {
+                return match tasks::table
+                    .filter(tasks::id.eq(task_uuid))
+                    .first(&mut establish_connection()) {
+                    Ok(task) => Ok(task),
+                    Err(_) => Err(Error::NotFound),
+                };
+            }
+            Err(_) => Err(Error::NotFound)
         }
     }
 }

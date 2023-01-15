@@ -21,6 +21,8 @@ fn rocket() -> _ {
                 crate::routes::projects::get_all_projects,
                 crate::routes::projects::get_project,
                 crate::routes::tasks::create_task,
+                crate::routes::sessions::start_session,
+                crate::routes::sessions::end_session,
             ],
     )
 }

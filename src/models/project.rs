@@ -62,7 +62,6 @@ impl Project {
             }
             Err(_) => None
         }
-
     }
 
     pub fn insert(new_project: NewProject) -> Result<(), InsertError> {
