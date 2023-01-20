@@ -37,7 +37,7 @@ impl Task {
         let sessions = Session::all(&self.id);
 
         match sessions {
-            Ok(mut sessions) => {
+            Ok(sessions) => {
                 let times: Vec<Duration> = sessions.iter().map(|s| {
                     let start = s.start_task.elapsed().unwrap();
                     let end = s.end_task.elapsed().unwrap();

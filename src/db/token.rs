@@ -1,4 +1,3 @@
-use std::time::Duration;
 use argon2::password_hash::rand_core;
 use diesel::RunQueryDsl;
 use rand_core::RngCore;
@@ -6,8 +5,6 @@ use uuid::Uuid;
 use crate::models::user::User;
 use crate::schema::tokens;
 use diesel::prelude::*;
-use diesel::serialize::IsNull::No;
-use rocket::http::ext::IntoCollection;
 use crate::db::{establish_connection};
 
 pub enum CreateTokenOutcome {

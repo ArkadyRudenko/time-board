@@ -1,12 +1,10 @@
-use std::str::FromStr;
 use std::time::Duration;
 use rocket::serde::json::Json;
-use uuid::{Error, Uuid};
+use uuid::{Error};
 use crate::db::token::Token;
-use crate::models::project::{InsertError, NewProject, Project};
-use crate::models::user::LoginError;
+use crate::models::project::{NewProject, Project};
 use crate::routes::route_objects::access_token::AccessToken;
-use crate::routes::route_objects::error_response::{ERROR_INCORRECT_LOGIN, ERROR_PROJECTS_NOT_FOUND, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
+use crate::routes::route_objects::error_response::{ERROR_PROJECTS_NOT_FOUND, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
 use crate::routes::route_objects::project_request::ProjectRequest;
 use crate::routes::route_objects::project_response::ProjectResponse;
 

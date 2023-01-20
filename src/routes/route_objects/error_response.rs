@@ -2,6 +2,7 @@ use rocket::http::{ContentType, Status};
 use rocket::response::{Responder, Result};
 use rocket::{Request, Response};
 use rocket::serde::json::Json;
+use rocket::serde::json::json;
 
 #[derive(Copy, Clone, Debug)]
 pub struct ErrorResponse<'a> {

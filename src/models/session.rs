@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use uuid::Uuid;
 use diesel::prelude::*;
 use diesel::result::Error;
