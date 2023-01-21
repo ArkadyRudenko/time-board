@@ -1,7 +1,8 @@
 use rocket::http::{ContentType, Status};
 use rocket::response::{Responder, Result};
 use rocket::{Request, Response};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
+use rocket::serde::json::json;
 
 #[derive(Copy, Clone, Debug)]
 pub struct ErrorResponse<'a> {
@@ -9,7 +10,7 @@ pub struct ErrorResponse<'a> {
     pub status: Status,
 }
 
-impl<'r> Responder<'r> for ErrorResponse<'r> {
+impl<'r> Responder<'r, 'r> for ErrorResponse<'r> {
     fn respond_to(self, request: &Request) -> Result<'r> {
         if let Ok(response) = Json(json!({"error": self.cause})).respond_to(request) {
             Response::build_from(response)
@@ -52,5 +53,53 @@ pub const ERROR_WEAK_PASSWORD: ErrorResponse = ErrorResponse {
 };
 pub const ERROR_ALREADY_REGISTERED: ErrorResponse = ErrorResponse {
     cause: "already_registered",
+    status: Status::BadRequest,
+};
+pub const ERROR_INCORRECT_LOGIN: ErrorResponse = ErrorResponse {
+    cause: "login has uppercase characters",
+    status: Status::BadRequest,
+};
+
+// projects error
+pub const ERROR_PROJECTS_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "there aren`t projects",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_PROJECT_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "there asn`t project",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_ACCESS_OUT_DATED: ErrorResponse = ErrorResponse {
+    cause: "login again, please",
+    status: Status::BadRequest,
+};
+
+// tasks error
+pub const ERROR_TASK_NOT_ADDED: ErrorResponse = ErrorResponse {
+    cause: "task wasn`t added",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_TASK_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "task was not found",
+    status: Status::BadRequest,
+};
+
+// session error
+pub const ERROR_SESSION_NOT_FOUND: ErrorResponse = ErrorResponse {
+    cause: "session was not found",
+    status: Status::BadRequest,
+};
+
+// db errors
+pub const ERROR_DB_INSERT_ERROR: ErrorResponse = ErrorResponse {
+    cause: "data base insert error",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_INVALID_UUID_ERROR: ErrorResponse = ErrorResponse {
+    cause: "invalid uuid",
     status: Status::BadRequest,
 };

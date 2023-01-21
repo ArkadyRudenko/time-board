@@ -1,0 +1,2 @@
+[default.databases.time-board]
+url = "postgres://postgres:qwerty@localhost/time-board"

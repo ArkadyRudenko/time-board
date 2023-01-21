@@ -3,8 +3,12 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
 
-pub mod registration_user;
+pub mod register_user;
 pub mod select_user;
+pub mod token;
+pub mod select_project;
+pub mod token_manager;
+pub mod connection;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -13,17 +17,3 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
-
-pub enum RegistrationOutcome {
-    Ok,
-    AlreadyInUse,
-    WeakPassword,
-    Other,
-}
-
-pub enum AuthorizationOutcome {
-    Ok(String),
-    NotFound,
-    Other,
-}
-
