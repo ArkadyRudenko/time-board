@@ -20,6 +20,7 @@ pub async fn login(
     };
 }
 
+// TODO add string with error
 #[post("/registration", format = "json", data = "<maybe_registration_request>")]
 pub async fn registration(
     maybe_registration_request: Option<Json<RegistrationRequest<'_>>>

@@ -17,3 +17,6 @@ create unique index IF NOT EXISTS users_id_uindex
 
 create unique index IF NOT EXISTS users_username_uindex
     on users (username);
+
+create unique index IF NOT EXISTS users_login_uindex
+    on users (login);

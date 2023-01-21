@@ -68,14 +68,11 @@ impl Task {
 
     pub fn select(task_id: &str) -> QueryResult<Task> {
         let task_id = Uuid::from_str(task_id);
-        match task_id {
+        return match task_id {
             Ok(task_uuid) => {
-                return match tasks::table
+                tasks::table
                     .filter(tasks::id.eq(task_uuid))
-                    .first(&mut establish_connection()) {
-                    Ok(task) => Ok(task),
-                    Err(_) => Err(Error::NotFound),
-                };
+                    .first(&mut establish_connection())
             }
             Err(_) => Err(Error::NotFound)
         }

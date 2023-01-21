@@ -71,6 +71,11 @@ pub const ERROR_PROJECT_NOT_FOUND: ErrorResponse = ErrorResponse {
     status: Status::BadRequest,
 };
 
+pub const ERROR_ACCESS_OUT_DATED: ErrorResponse = ErrorResponse {
+    cause: "login again, please",
+    status: Status::BadRequest,
+};
+
 // tasks error
 pub const ERROR_TASK_NOT_ADDED: ErrorResponse = ErrorResponse {
     cause: "task wasn`t added",
@@ -85,5 +90,16 @@ pub const ERROR_TASK_NOT_FOUND: ErrorResponse = ErrorResponse {
 // session error
 pub const ERROR_SESSION_NOT_FOUND: ErrorResponse = ErrorResponse {
     cause: "session was not found",
+    status: Status::BadRequest,
+};
+
+// db errors
+pub const ERROR_DB_INSERT_ERROR: ErrorResponse = ErrorResponse {
+    cause: "data base insert error",
+    status: Status::BadRequest,
+};
+
+pub const ERROR_INVALID_UUID_ERROR: ErrorResponse = ErrorResponse {
+    cause: "invalid uuid",
     status: Status::BadRequest,
 };

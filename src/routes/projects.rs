@@ -1,34 +1,40 @@
 use std::time::Duration;
 use rocket::serde::json::Json;
-use uuid::{Error};
-use crate::db::token::Token;
+use crate::db::token::{SelectTokenOutCome, Token};
 use crate::models::project::{NewProject, Project};
-use crate::routes::route_objects::access_token::AccessToken;
-use crate::routes::route_objects::error_response::{ERROR_PROJECTS_NOT_FOUND, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
+use crate::routes::route_objects::error_response::{ERROR_ACCESS_OUT_DATED, ERROR_PROJECTS_NOT_FOUND, ERROR_USER_NOT_FOUND, ERROR_WRONG_REQUEST, ErrorResponse};
 use crate::routes::route_objects::project_request::ProjectRequest;
 use crate::routes::route_objects::project_response::ProjectResponse;
+use diesel::result::Error;
 
-#[post("/project", format = "json", data = "<maybe_project_request>")]
-pub async fn create_project(
-    maybe_project_request: Option<Json<ProjectRequest<'_>>>
-) -> Result<Json<String>, ErrorResponse> {
-    let mut new_project = NewProject::default();
+#[post("/project?<access_token>", format = "json", data = "<maybe_project_request>")]
+pub async fn create_project<'r>(
+    access_token: &str,
+    maybe_project_request: Option<Json<ProjectRequest<'r>>>,
+) -> Result<Json<String>, ErrorResponse<'r>> {
+    match Token::select(access_token) {
+        SelectTokenOutCome::Some(token) => {
+            let mut new_project = NewProject::default();
 
-    let call_chain = maybe_project_request.map(|p| {
-        new_project.title = p.title;
-        new_project.description = p.description;
-        Token::select(p.access_token)
-    });
+            let call_chain = maybe_project_request.map(|p| {
+                new_project.title = p.title;
+                new_project.description = p.description;
+                new_project
+            });
 
-    match call_chain {
-        Some(Some(token)) => {
-            new_project.user_id = token.get_user_id();
-            match Project::insert(new_project) {
-                Ok(_) => Ok(Json(String::from("Project was added"))),
-                Err(_) => Err(ERROR_USER_NOT_FOUND),
+            match call_chain {
+                Some(mut new_project) => {
+                    new_project.user_id = token.get_user_id();
+                    match Project::insert(new_project) {
+                        Ok(_) => Ok(Json(String::from("Project was added"))),
+                        Err(_) => Err(ERROR_USER_NOT_FOUND),
+                    }
+                }
+                _ => Err(ERROR_WRONG_REQUEST),
             }
         }
-        _ => Err(ERROR_USER_NOT_FOUND),
+        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     }
 }
 
@@ -39,8 +45,8 @@ pub async fn get_all_projects<'a>(
     let token = Token::select(access_token);
 
     match token {
-        Some(token) => {
-            let projects = Project::select_projects_by_user_id(token.get_user_id());
+        SelectTokenOutCome::Some(token) => {
+            let projects = Project::select_projects_with_user_id(token.get_user_id());
             match projects {
                 Some(projects) => {
                     let projects_responses = projects
@@ -52,52 +58,45 @@ pub async fn get_all_projects<'a>(
                 None => Err(ERROR_PROJECTS_NOT_FOUND)
             }
         }
-        None => Err(ERROR_USER_NOT_FOUND)
+        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     }
 }
 
-#[get("/project?<project_id>", format = "json", data = "<access_token>")]
-pub async fn get_project(
+#[get("/project/<project_id>?<access_token>")]
+pub async fn get_project<'r>(
     project_id: &str,
-    access_token: Option<Json<String>>,
-) -> Result<Json<ProjectResponse>, ErrorResponse> {
-    return match access_token {
-        Some(access_token) => {
-            let token = Token::select(access_token.into_inner().as_str());
-
-            match token {
-                Some(_) => {
-                    let project = Project::select_project(project_id);
-                    match project {
-                        Some(project) => {
-                            Ok(Json(ProjectResponse::from_project(&project)))
-                        }
-                        None => Err(ERROR_PROJECTS_NOT_FOUND)
-                    }
+    access_token: &str,
+) -> Result<Json<ProjectResponse>, ErrorResponse<'r>> {
+    match Token::select(access_token) {
+        SelectTokenOutCome::Some(_) => {
+            let project = Project::select(project_id);
+            match project {
+                Ok(project) => {
+                    Ok(Json(ProjectResponse::from_project(&project)))
                 }
-                None => Err(ERROR_USER_NOT_FOUND)
+                NotFound => Err(ERROR_PROJECTS_NOT_FOUND)
             }
         }
-        None => Err(ERROR_WRONG_REQUEST)
+        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     }
 }
 
-#[get("/project/<project_id>/time", format = "json", data = "<access_token>")]
+#[get("/project/<project_id>/time?<access_token>")]
 pub async fn get_project_time<'r>(
     project_id: &str,
-    access_token: Option<Json<AccessToken<'r>>>,
+    access_token: &str,
 ) -> Result<Json<Duration>, ErrorResponse<'r>> {
-    let call_chain = access_token.map(|token| {
-        Token::select(token.access_token)
-    });
-    return match call_chain {
-        Some(Some(_)) => {
+    return match Token::select(access_token) {
+        SelectTokenOutCome::Some(_) => {
             match Project::get_all_time(project_id) {
                 Ok(time) => Ok(Json(time)),
                 _ => Err(ERROR_PROJECTS_NOT_FOUND),
             }
-        },
-        _ => Err(ERROR_USER_NOT_FOUND),
+        }
+        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     };
 }
 

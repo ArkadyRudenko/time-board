@@ -12,6 +12,12 @@ pub enum CreateTokenOutcome {
     Err,
 }
 
+pub enum SelectTokenOutCome {
+    Some(Token),
+    OutDated,
+    None
+}
+
 #[derive(Queryable, Clone)]
 pub struct Token {
     token: String,
@@ -58,7 +64,7 @@ impl Token {
 
     // CDbsKFaGoN7CpKbafOWw0OCo I979NYkBl/9jaHuVGY=
     // CDbsKFaGoN7CpKbafOWw0OCo+I979NYkBl/9jaHuVGY=
-    pub fn select(token: &str) -> Option<Token> {
+    pub fn select(token: &str) -> SelectTokenOutCome {
         // TODO Why it replaces '+' to ' '?
         let new_token: String = token.chars().map(|ch| {
             if ch == ' ' { '+' } else { ch } }
@@ -67,8 +73,11 @@ impl Token {
         return match tokens::table
             .filter(tokens::token.eq(new_token.as_str()))
             .first(&mut establish_connection()) {
-            Ok(token) => Some(token),
-            _ => None,
+            Ok(token) =>  {
+                // TODO check outdated
+                SelectTokenOutCome::Some(token)
+            },
+            _ => SelectTokenOutCome::None,
         };
     }
 }

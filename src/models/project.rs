@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use std::time::Duration;
+use diesel::NotFound;
 use uuid::{Uuid};
 use diesel::prelude::*;
 use crate::db::establish_connection;
@@ -15,7 +16,7 @@ pub enum GetProjectOutcome {
 }
 
 pub enum InsertError {
-    SomeError,
+    SomeError, // TODO rename
 }
 
 #[derive(Queryable)]
@@ -43,7 +44,7 @@ impl Project {
         &self.id
     }
 
-    pub fn select_projects_by_user_id(user_id: Uuid) -> Option<Vec<Project>> {
+    pub fn select_projects_with_user_id(user_id: Uuid) -> Option<Vec<Project>> {
         return match projects::table
             .filter(projects::user_id.eq(user_id))
             .load::<Project>(&mut establish_connection()) {
@@ -52,18 +53,15 @@ impl Project {
         };
     }
 
-    pub fn select_project(project_id: &str) -> Option<Project> {
+    pub fn select(project_id: &str) -> QueryResult<Project> {
         let project_id = Uuid::from_str(project_id);
-        match project_id {
+        return match project_id {
             Ok(project_uuid) => {
-                return match projects::table
+                projects::table
                     .filter(projects::id.eq(project_uuid))
-                    .first(&mut establish_connection()) {
-                    Ok(project) => Some(project),
-                    Err(_) => None,
-                };
+                    .first(&mut establish_connection())
             }
-            Err(_) => None
+            Err(_) => Err(NotFound)
         }
     }
 

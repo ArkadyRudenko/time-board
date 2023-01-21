@@ -6,6 +6,4 @@ pub struct ProjectRequest<'a> {
     pub title:  &'a str,
     #[serde(rename = "description")]
     pub description:  &'a str,
-    #[serde(rename = "access_token")]
-    pub access_token:  &'a str,
 }
