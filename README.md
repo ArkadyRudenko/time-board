@@ -2,6 +2,8 @@
 
 You can manage your time by creating a project and tasks for your work
 
+Change localhost in Rocket.toml
+
 ### HTTP API:
     - registration: curl -X POST "http://localhost:8000/api-v1/registration"  -H 'Content-Type: application/json' -d '{
                                                                   "username": "arkady",

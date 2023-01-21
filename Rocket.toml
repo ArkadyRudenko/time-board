@@ -1,2 +1,14 @@
 [default.databases.time-board]
 url = "postgres://postgres:qwerty@localhost/time-board"
+
+[default]
+address = "0.0.0.0"
+limits = { form = "64 kB", json = "1 MiB" }
+workers = 16
+max_blocking = 512
+keep_alive = 5
+
+## set only when compiled in debug mode, i.e, `cargo build`
+[debug]
+port = 8080
+limits = { json = "10MiB" }
