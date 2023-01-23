@@ -1,20 +1,8 @@
 use rocket_sync_db_pools::{database};
-use rocket_sync_db_pools::diesel::RunQueryDsl;
-use rocket_sync_db_pools::diesel::Insertable;
-
-// not compile =(
-/*
-
-#[derive(Insertable)]
-#[diesel(table_name = users)]
-pub struct NewUser<'a> {
-    pub username: &'a str,
-    pub login: &'a str,
-    pub password: &'a str,
-}
+use crate::models::user::NewUser;
 
 #[database("time-board")]
-pub struct DbConn(diesel::PgConnection);
+pub struct DbConn(rocket_sync_db_pools::diesel::PgConnection);
 
 #[post("/")]
 pub async fn insert_test(conn: DbConn) {
@@ -24,10 +12,11 @@ pub async fn insert_test(conn: DbConn) {
             login: "TEST",
             password: "TEST",
         };
-        diesel::insert_into(crate::schema::users::table)
-            .values(new_user)
-            .execute(&*conn)
+
+        // not compile =(
+        // diesel::insert_into(crate::schema::users::table)
+        //     .values(new_user)
+        //     .execute(conn)
+
     }).await
 }
-
-*/

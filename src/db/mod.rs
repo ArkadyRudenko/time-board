@@ -6,7 +6,6 @@ use std::env;
 pub mod register_user;
 pub mod select_user;
 pub mod token;
-pub mod select_project;
 pub mod token_manager;
 pub mod connection;
 

@@ -33,7 +33,7 @@ pub async fn create_project<'r>(
                 _ => Err(ERROR_WRONG_REQUEST),
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     }
 }
@@ -58,7 +58,7 @@ pub async fn get_all_projects<'a>(
                 None => Err(ERROR_PROJECTS_NOT_FOUND)
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     }
 }
@@ -78,7 +78,7 @@ pub async fn get_project<'r>(
                 NotFound => Err(ERROR_PROJECTS_NOT_FOUND)
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     }
 }
@@ -95,7 +95,7 @@ pub async fn get_project_time<'r>(
                 _ => Err(ERROR_PROJECTS_NOT_FOUND),
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND)
     };
 }

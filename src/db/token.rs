@@ -1,3 +1,4 @@
+use std::time::{Duration, SystemTime};
 use argon2::password_hash::rand_core;
 use diesel::RunQueryDsl;
 use rand_core::RngCore;
@@ -14,8 +15,8 @@ pub enum CreateTokenOutcome {
 
 pub enum SelectTokenOutCome {
     Some(Token),
-    OutDated,
-    None
+    Expired,
+    None,
 }
 
 #[derive(Queryable, Clone)]
@@ -67,17 +68,36 @@ impl Token {
     pub fn select(token: &str) -> SelectTokenOutCome {
         // TODO Why it replaces '+' to ' '?
         let new_token: String = token.chars().map(|ch| {
-            if ch == ' ' { '+' } else { ch } }
+            if ch == ' ' { '+' } else { ch }
+        }
         ).collect();
 
         return match tokens::table
             .filter(tokens::token.eq(new_token.as_str()))
-            .first(&mut establish_connection()) {
-            Ok(token) =>  {
-                // TODO check outdated
+            .first::<Token>(&mut establish_connection()) {
+            Ok(mut token) => {
+                if token.is_expired() {
+                    return SelectTokenOutCome::Expired;
+                }
+                token.update_last_used_at();
+
                 SelectTokenOutCome::Some(token)
-            },
+            }
             _ => SelectTokenOutCome::None,
         };
+    }
+
+    fn is_expired(&self) -> bool {
+        static FREE_DAYS_IN_SECONDS: u64 = 259_200;
+        static MAX_USED_TIME: Duration = Duration::new(FREE_DAYS_IN_SECONDS, 0);
+        let total_used_time = self.last_used_at.elapsed().expect("get last used at");
+        total_used_time > MAX_USED_TIME
+    }
+
+    fn update_last_used_at(&mut self) {
+        diesel::update(crate::schema::tokens::table)
+            .filter(tokens::token.eq(self.token.clone()))
+            .set(tokens::last_used_at.eq(std::time::SystemTime::now()))
+            .execute(&mut establish_connection());
     }
 }

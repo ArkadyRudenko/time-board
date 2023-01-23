@@ -33,7 +33,7 @@ pub async fn create_task<'r>(
                 None => Err(ERROR_WRONG_REQUEST)
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     }
 }
@@ -50,7 +50,7 @@ pub async fn get_all_task<'r>(
                 _ => Err(ERROR_PROJECT_NOT_FOUND),
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     }
 }

@@ -25,7 +25,7 @@ pub async fn start_session<'r>(
                 _ => Err(ERROR_TASK_NOT_FOUND)
             }
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     };
 }
@@ -48,7 +48,7 @@ pub async fn end_session<'r>(
                 _ => Err(ERROR_INVALID_UUID_ERROR),
             };
         }
-        SelectTokenOutCome::OutDated => Err(ERROR_ACCESS_OUT_DATED),
+        SelectTokenOutCome::Expired => Err(ERROR_ACCESS_OUT_DATED),
         SelectTokenOutCome::None => Err(ERROR_USER_NOT_FOUND),
     };
 }
